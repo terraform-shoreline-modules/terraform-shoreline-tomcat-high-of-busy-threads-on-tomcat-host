@@ -1,0 +1,182 @@
+{
+  "name": "high_of_busy_threads_on_tomcat_host_test",
+  "description": "This incident type is triggered when the percentage of busy threads on a Tomcat host exceeds a certain threshold. This can indicate that the host is experiencing high traffic or that there is a problem with the configuration of the Tomcat server. The incident is resolved when the issue is addressed and the percentage of busy threads returns to a normal level.",
+  "params": [
+    {
+      "name": "LOCATION_OF_THREAD_DUMP_FILE",
+      "value": ""
+    },
+    {
+      "name": "LOG_FILE_NAME",
+      "value": ""
+    },
+    {
+      "name": "DEPLOYMENT_NAME",
+      "value": ""
+    },
+    {
+      "name": "SERVICE_NAME",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_JAVA_HOME",
+      "value": ""
+    },
+    {
+      "name": "TOMCAT_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "POD_LABEL",
+      "value": ""
+    },
+    {
+      "name": "NAME_OF_TOMCAT_CONTAINER",
+      "value": ""
+    },
+    {
+      "name": "NAME_OF_THREAD_DUMP_FILE",
+      "value": ""
+    },
+    {
+      "name": "NAME_OF_TOMCAT_POD",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## High % of Busy Threads on Tomcat Host (TEST)\nThis incident type is triggered when the percentage of busy threads on a Tomcat host exceeds a certain threshold. This can indicate that the host is experiencing high traffic or that there is a problem with the configuration of the Tomcat server. The incident is resolved when the issue is addressed and the percentage of busy threads returns to a normal level."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List all pods in the namespace"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs of a specific pod"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${NAME_OF_TOMCAT_POD} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the CPU and memory usage of a specific pod"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top pod ${NAME_OF_TOMCAT_POD} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Tomcat service"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe svc ${SERVICE_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Tomcat deployment"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe deployment ${DEPLOYMENT_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the configuration of the Tomcat server"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE | `cat ${TOMCAT_CONFIG_FILE}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Improper configuration of the Tomcat server leading to inefficient use of threads and high utilization of the available threads."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_get_thread_dump($LOCATION_OF_THREAD_DUMP_FILE, $PATH_TO_JAVA_HOME, $NAME_OF_TOMCAT_CONTAINER, $NAME_OF_THREAD_DUMP_FILE, $NAME_OF_TOMCAT_POD)"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Bugs or defects in the application running on the Tomcat server leading to high thread usage."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_cpu_usage_check($DEPLOYMENT_NAME, $NAMESPACE, $NAME_OF_TOMCAT_CONTAINER)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Identify and resolve any bottlenecks in the application code that may be causing excessive thread usage."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_thread_analysis($LOG_FILE_NAME, $NAMESPACE, $NAME_OF_TOMCAT_CONTAINER, $NAME_OF_TOMCAT_POD)"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the configuration of the Tomcat server to ensure that it is optimized for the expected traffic volume."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_tomcat_config_check($TOMCAT_CONFIG_FILE, $NAMESPACE, $POD_LABEL, $NAME_OF_TOMCAT_CONTAINER)"
+    }
+  ]
+}
